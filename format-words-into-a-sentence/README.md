@@ -1,0 +1,5 @@
+Problem domain: Complete the method so that it formats the words into a single comma separated value. The last word should be separated by the word 'and' instead of a comma. The method takes in an array of strings and returns a single formatted string. Empty string values should be ignored. Empty arrays or null/nil values being passed into the method should result in an empty string being returned.
+
+Link: https://www.codewars.com/kata/format-words-into-a-sentence/train/javascript
+
+Answer: Some of the test variables were either null, [""], or [], so I used an if statement to return those tests with an empty string, next I filtered the empty string elements out of the array. Filtering had to come after the first step because you can't perform array/string methods on a null. The last part is a conditional to determine if the array length is greater than 1, if true, then I joined the array together with commas then used regex to target the last occurance of a comma and replace it with "' and '" OR I simply join the array together with "' and '" as there only 2 elements then and commas aren't needed.
