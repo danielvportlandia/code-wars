@@ -1,53 +1,24 @@
 'use strict';
 
-const priceTest = 128;
-const coinsTest = {
-  '1': 10,
-  '100': 0,
-  '5': 0,
-  '20': 3,
-  '50': 0,
-  '200': 1,
-}
-
-const creditTest = {
-  '100': 1,
-  '5': 2,
-  '50': 1,
-  '14': 3,
-}
-
-const creditTest2 = {
-  '1': 1,
-}
-
-const creditTest3 = {
-  '100': 1,
-  '20': 1,
-  '8': 1,
-  '5': 2,
-}
-
 class VendingMachine {
   constructor(coins) {
     this.coins = coins;
     this.validCoinValues = this.values(coins);
   }
 
+  /* 
+  This is the main function of this class. It removes the invalid coins from "credit" then calculates if the sum of valid coins will cover "price", if it doesn't, then it will return "credit". 
+  */
   vending(price, credit) {
-    const invalidCoins = this.extractInvalidCoins(credit),
-             creditSum = this.values(credit).reduce((sum, value) => sum + value * credit[value], 0);
-          
+    const invalidCoins = this.extractInvalidCoins(credit);
+    const creditSum = this.values(credit).reduce((sum, value) => sum + value * credit[value], 0);
     let returnCoins;
     
     if (creditSum < price) {
       returnCoins = credit;
     } else {
-      // console.log(this.addCoinsToSafe(credit));
       this.addCoinsToSafe(credit);
       returnCoins = this.getReturnCoins(creditSum - price);
-      console.log(returnCoins);
-      console.log(this.removeCoinsFromSafe(returnCoins));
       this.removeCoinsFromSafe(returnCoins);
     }
         
@@ -59,20 +30,22 @@ class VendingMachine {
       return {};
     }
     
-    const coinValues = this.values(this.coins).filter(value => value <= change && this.coins[value]),
-      availableCoins = coinValues.reduce((coins, value) => { coins[value] = this.coins[value]; return coins; }, {});
+    const coinValues = this.values(this.coins).filter(value => value <= change && this.coins[value]);
+    const availableCoins = coinValues.reduce((coins, value) => { coins[value] = this.coins[value]; 
+      
+    return coins; }, {});
     
     let minLeftover  = change,
-      minReturnCoins = availableCoins;
+    minReturnCoins = availableCoins;
     
     while(coinValues.length) {
       let leftover  = change,
-        returnCoins = {};
+      returnCoins = {};
       
       for (let value of coinValues) {
-        let quantity     = availableCoins[value],
-          maxQuantity    = Math.floor(leftover / value),
-          returnQuantity = Math.min(maxQuantity, quantity);
+        let quantity = availableCoins[value];
+        let maxQuantity = Math.floor(leftover / value);
+        let returnQuantity = Math.min(maxQuantity, quantity);
             
         if (!returnQuantity) {
           continue;
@@ -89,19 +62,23 @@ class VendingMachine {
           minReturnCoins = Object.assign({}, returnCoins);
         }
       }
+
       if (availableCoins[coinValues[0]] > 1) {
         availableCoins[coinValues[0]]--;
       } else {
         delete availableCoins[coinValues.shift()];
       }
     }
+
     return minReturnCoins;
   }
 
+  // This function logs the coins which the machine can take based off its constructor(coins).
   values(coins) {
     return Object.keys(coins).map(Number).sort((a,b) => b - a);
   }
 
+  // This function removes all the invalid coins from the safe
   extractInvalidCoins(coins) {
     return this.values(coins)
       .filter(value => !this.validCoinValues.includes(value))
@@ -120,10 +97,3 @@ class VendingMachine {
     Object.keys(coins).forEach(value => this.coins[value] -= coins[value]);
   }
 }
-
-const testMachine = new VendingMachine(coinsTest);
-console.log(testMachine.vending(priceTest, creditTest));
-console.log(testMachine.vending(priceTest, creditTest2));
-console.log(testMachine.vending(priceTest, creditTest3));
-
-console.log(testMachine.validCoinValues);
